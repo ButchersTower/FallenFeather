@@ -1,17 +1,24 @@
 package FallenFeather;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
-public class Panel extends JPanel implements Runnable {
+public class Panel extends JPanel implements Runnable, MouseListener,
+		KeyListener {
+	// This is going to be
 
-	int width = 160;
-	int height = 200;
+	int width = 700;
+	int height = 450;
 
 	Image[] imageAr;
 
@@ -53,6 +60,9 @@ public class Panel extends JPanel implements Runnable {
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		g = (Graphics2D) image.getGraphics();
 		this.setSize(new Dimension(width, height));
+
+		addMouseListener(this);
+		addKeyListener(this);
 
 		startTime = System.currentTimeMillis();
 		gStart();
@@ -125,6 +135,14 @@ public class Panel extends JPanel implements Runnable {
 		}
 	}
 
+	void renderGame() {
+		g.setColor(Color.ORANGE);
+		g.drawRect(40, 50, 20, 10);
+		g.drawRect(80, 40, 10, 20);
+		g.setColor(Color.BLUE);
+		g.drawOval(60, 80, 40, 40);
+	}
+
 	/**
 	 * Methods go above here.
 	 * 
@@ -147,6 +165,57 @@ public class Panel extends JPanel implements Runnable {
 		// ImageIcon ie = new ImageIcon(this.getClass().getResource(
 		// "res/image.png"));
 		// imageAr[0] = ie.getImage();
+
+	}
+
+	@Override
+	public void mousePressed(MouseEvent me) {
+		float[][] seg1 = { { 2, 1 }, { 4, 4 } };
+		float[][] seg2 = { { 1, 4 }, { 2, 3 } };
+		JaMa.distSegmenttoSegment(seg1, seg2);
+
+		renderGame();
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void keyPressed(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
 
 	}
 }
