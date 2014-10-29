@@ -5,8 +5,8 @@ FallenFeather
 Features:
 One circle path finding.
 2d scrolling and mouse adjustment.
-Character selecetion
-Window viewing.
+Character selection.
+Invintory viewing and adding.
 
 
 Character has a location, and so does camera. Right click and drag to move camera location.
