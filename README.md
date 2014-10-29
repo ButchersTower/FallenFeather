@@ -8,6 +8,8 @@ One circle path finding.
 Character selection.
 Invintory viewing and adding.
 
+************
+
 
 Character has a location, and so does camera. Right click and drag to move camera location.
 Scrolling in and out.
