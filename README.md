@@ -1,6 +1,16 @@
 FallenFeather
 =============
 
+Blue circle is the first unit.
+Green circle is a tree.
+
+Select the unit:
+right click to move.
+"c" to open invintory.
+Shift + "c" to open and align invintory.
+
+
+************
 
 Features:
 One circle path finding.
