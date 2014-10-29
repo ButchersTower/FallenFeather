@@ -11,22 +11,20 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-import FallenFeather.lib.*;
-import SandDrag.Player;
+import FallenFeather.lib.JaMa;
+import FallenFeather.lib.Vect2d;
 
-public class Panel extends JPanel implements Runnable, MouseListener,
+public class PanelOld1 extends JPanel implements Runnable, MouseListener,
 		KeyListener, MouseMotionListener {
 	// This is going to be
 
 	int width = 700;
 	int height = 450;
 
-	public static Image[] imageAr;
+	Image[] imageAr;
 
 	Thread thread;
 	Image image;
@@ -45,6 +43,11 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	boolean running = false;
 
 	// Vars for gLoop Above
+
+	float pX = 60;
+	float pY = 90;
+	float pRadius = 20;
+	float pSpeed = 12;
 
 	float tarX = 0;
 	float tarY = 0;
@@ -65,22 +68,15 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	boolean moving = false;
 	boolean pathing = false;
 
+	Player play = new Player(new float[] { 50, 50 }, 18, 20, Color.BLUE);
+
 	// top left corner of camera.
 	float[] cameraLoc = { 0, 0 };
 
 	// player selected.
 	boolean playSel = false;
 
-	Unit play;
-
-	int[] mouseLast = new int[2];
-
-	boolean b1press = false;
-	boolean shiftP = false;
-
-	String[] items = { "Axe", "Plank" };
-
-	public Panel() {
+	public PanelOld1() {
 		super();
 
 		setPreferredSize(new Dimension(width, height));
@@ -114,10 +110,16 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	 * 
 	 */
 
+	Indie[] panels = new Indie[1];
+
 	public void gStart() {
 		imageInit();
 
-		initPlayer();
+		panels = new Indie[1];
+		for (int p = 0; p < panels.length; p++) {
+			panels[p] = new Indie(10 + p * 14, 20 + p * 24, 120, 180, 4, 12,
+					18, 2, 6);
+		}
 
 		running = true;
 		gLoop();
@@ -146,24 +148,6 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 
 			// System.out.println("runTime: " + timer());
 
-			// Mouse Handle
-			// for (int m = 0; m < mouseQ.size(); m++) {
-			while (mousePQ.size() > 0) {
-				mouseP(mousePQ.get(0));
-				mousePQ.remove(0);
-			}
-			// }
-
-			if (mouseD) {
-				mouseD();
-				mouseD = false;
-			}
-
-			while (mouseRQ.size() > 0) {
-				mouseR(mouseRQ.get(0));
-				mouseRQ.remove(0);
-			}
-
 			if (setPath) {
 				playMoveWhole();
 				setPath = false;
@@ -181,6 +165,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 			/**
 			 * And above here.
 			 */
+			drwGm();
 
 			ticks++;
 
@@ -212,121 +197,44 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		}
 	}
 
-	ArrayList<int[]> mousePQ = new ArrayList<int[]>();
-	ArrayList<int[]> mouseRQ = new ArrayList<int[]>();
-
-	// if the last click was on a panel.
-	boolean clickedOnPanel = false;
-
-	boolean charInfo = false;
-	float[] infoLoc = { 400, 80, 200, 300 };
-	boolean mouseD = false;
-	boolean justDragged = false;
-
-	int lastButton = -1;
-	int[] dragLoc = new int[2];
-
-	int[] lastDragLoc = new int[2];
-
-	void mouseP(int[] mo) {
-		clickedOnPanel = false;
-		justDragged = false;
-		float[] mouseRel = { cameraLoc[0] + mo[0], cameraLoc[1] + mo[1] };
-		// Vect2d.sayVect("mouseRel", mouseRel);
-
-		// mouseLast[0] = mo[0];
-		// mouseLast[1] = mo[1];
-
-		if (mo[2] == MouseEvent.BUTTON3) {
-			// If right click on tree then do an axe check and go there and
-			// start cutting trees once there.
-			lastButton = 3;
-			// If you are right clicking on a panel then don't move.
-			if (!play.lapCheck(mo[0], mo[1])) {
-				// If your unit is not selected then dont move it.
-				if (playSel) {
-					setPath = true;
-					tarX = mouseRel[0];
-					tarY = mouseRel[1];
-				}
-			}
-		} else if (mo[2] == MouseEvent.BUTTON1) {
-			lastButton = 1;
-			boolean panelTouch = false;
-			if (play.invInfo[4] == 1) {
-				if (play.clickHandle(mo[0], mo[1])) {
-					panelTouch = true;
-				}
-			}
-			if (panelTouch) {
-				clickedOnPanel = true;
-			} else {
-				b1press = true;
-			}
-		}
-	}
-
-	void mouseD() {
-		justDragged = true;
-		if (lastButton == 1) {
-			int[] delta = { dragLoc[0] - lastDragLoc[0],
-					dragLoc[1] - lastDragLoc[1] };
-			if (b1press) {
-				cameraLoc[0] -= delta[0];
-				cameraLoc[1] -= delta[1];
-			} else {
-				if (play.getInvInfo()[5] == 1) {
-					play.moveInvLoc(delta[0], delta[1]);
-				}
-			}
-		} else if (lastButton == 3) {
-			// If you are right clicking on a panel then don't move.
-			// if (!panels[0].lapCheck(dragLoc[0], dragLoc[1])) {
-			if (!play.lapCheck(dragLoc[0], dragLoc[1])) {
-				// If your unit is not selected then dont move it.
-				if (playSel) {
-					setPath = true;
-					tarX = cameraLoc[0] + dragLoc[0];
-					tarY = cameraLoc[1] + dragLoc[1];
-				}
-			}
-		}
-		lastDragLoc = dragLoc.clone();
-	}
-
-	void mouseR(int[] mo) {
-		if (mo[2] == MouseEvent.BUTTON1) {
-			if (!justDragged && !clickedOnPanel) {
-				entitySel(new float[] { mo[0], mo[1] });
-			}
-			b1press = false;
-		}
-	}
-
 	void followPath() {
-		playSpeedLeft = play.speed;
+		playSpeedLeft = pSpeed;
 		while (myPath.length > 0 && playSpeedLeft > 0) {
+			// System.out.println("while");
 			sortPath();
 		}
-		// System.out.println("myPath.length: " + myPath.length);
+		System.out.println("myPath.length: " + myPath.length);
 		if (myPath.length == 0) {
 			pathing = false;
-			// System.out.println("pathing: " + pathing);
+			System.out.println("pathing: " + pathing);
 		}
 		moving = false;
 	}
 
 	void sortPath() {
 		if (myPath[0] == 0) {
+			System.out.println("path 0");
+			// System.out.println("line");
 			// linear so go straight
 			if (myPath[3] > playSpeedLeft) {
-				play.loc[0] += myPath[1] * playSpeedLeft;
-				play.loc[1] += myPath[2] * playSpeedLeft;
+				System.out.println("playSpeedLeft : " + playSpeedLeft);
+				System.out.println("myPath[3]: " + myPath[3]);
+				// Vect2d.sayVect("myPath", myPath);
+				pX += myPath[1] * playSpeedLeft;
+				pY += myPath[2] * playSpeedLeft;
+				System.out.println("myPath[1]: " + myPath[1]);
+				System.out.println("myPath[2]: " + myPath[2]);
+				// System.out.println("xAdd: " + myPath[1] * playSpeedLeft);
+				// System.out.println("yAdd: " + myPath[2] * playSpeedLeft);
 				myPath[3] -= playSpeedLeft;
 				playSpeedLeft = 0;
 			} else {
-				play.loc[0] += myPath[1] * myPath[3];
-				play.loc[1] += myPath[2] * myPath[3];
+				pX += myPath[1] * myPath[3];
+				pY += myPath[2] * myPath[3];
+				System.out.println("tarX: " + tarX);
+				System.out.println("tarY: " + tarY);
+				System.out.println("pX: " + pX);
+				System.out.println("pY: " + pY);
 				playSpeedLeft -= myPath[3];
 				// delete the four. and move on.
 				myPath = JaMa.removeFirstFloatAr(myPath, 4);
@@ -355,16 +263,15 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				g.setColor(Color.MAGENTA);
 				g.drawOval((int) (treeInfo[0] + newLoc[0]) - 3,
 						(int) (treeInfo[1] + newLoc[1]) - 3, 6, 6);
-				play.loc[0] = treeInfo[0] + newLoc[0];
-				play.loc[1] = treeInfo[1] + newLoc[1];
-				System.out.println("play.loc[0]: " + play.loc[0]
-						+ ",   play.loc[1]: " + play.loc[1]);
+				pX = treeInfo[0] + newLoc[0];
+				pY = treeInfo[1] + newLoc[1];
+				System.out.println("pX: " + pX + ",   pY: " + pY);
 				// pathing = false;
 				playSpeedLeft = 0;
 			} else {
 				float[] newLoc = Vect2d.theaToPoint(myPath[2], myPath[3]);
-				play.loc[0] = treeInfo[0] + newLoc[0];
-				play.loc[1] = treeInfo[1] + newLoc[1];
+				pX = treeInfo[0] + newLoc[0];
+				pY = treeInfo[1] + newLoc[1];
 				myPath = JaMa.removeFirstFloatAr(myPath, 4);
 				playSpeedLeft -= edgeLength;
 			}
@@ -376,18 +283,18 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 
 		direction = new float[0][];
 		// get delta vector. scale to moveSpeed.
-		float[] deltaVect = { tarX - play.loc[0], tarY - play.loc[1] };
+		float[] deltaVect = { tarX - pX, tarY - pY };
 
 		if (distPointToVect(Vect2d.vectSub(new float[] { treeInfo[0],
-				treeInfo[1] }, new float[] { play.loc[0], play.loc[1] }),
-				deltaVect) < treeInfo[2] + play.radius) {
+				treeInfo[1] }, new float[] { pX, pY }), deltaVect) < treeInfo[2]
+				+ pRadius) {
 			// if the target point was inside of a tree then project it out.
 			float[] tarRelTree = new float[] { tarX - treeInfo[0],
 					tarY - treeInfo[1] };
-			if (Vect2d.norm(tarRelTree) <= play.radius + treeInfo[2]) {
+			if (Vect2d.norm(tarRelTree) <= pRadius + treeInfo[2]) {
 				// add small num to bypass rounding mistakes.
 				// float[] pushedTar = Vect2d.theaToPoint(
-				// Vect2d.pointToThea(tarRelTree), play.radius + treeInfo[2]
+				// Vect2d.pointToThea(tarRelTree), pRadius + treeInfo[2]
 				// + smallNum);
 				/**
 				 * Instead of pushing it out pick the closest point between play
@@ -395,16 +302,16 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				 */
 				// treeInfo.l is 3 but Ve2d only reads the first two increments.
 				float[] treeRelPlay = Vect2d.vectSub(treeInfo, new float[] {
-						play.loc[0], play.loc[1] });
+						pX, pY });
 				// deltaVect scaled down by plaR + treR.
 				float ta = Vect2d.norm(treeRelPlay);
 				System.out.println("b4 ta: " + ta);
 				treeRelPlay = Vect2d.vectMultScalar(
-						(ta - (play.radius + treeInfo[2])) / ta, treeRelPlay);
+						(ta - (pRadius + treeInfo[2])) / ta, treeRelPlay);
 				ta = Vect2d.norm(treeRelPlay);
 				System.out.println("cd ta: " + ta);
-				// tarX = play.loc[0] + treeRelPlay[0];
-				// tarY = play.loc[1] + treeRelPlay[1];
+				// tarX = pX + treeRelPlay[0];
+				// tarY = pY + treeRelPlay[1];
 				// tarX = treeInfo[0] + pushedTar[0];
 				// tarY = treeInfo[1] + pushedTar[1];
 				// playMoveWhole();
@@ -413,16 +320,15 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				myPath = new float[] { 0, treeRelPlay[0] / ta,
 						treeRelPlay[1] / ta, ta };
 				g.setColor(Color.ORANGE);
-				g.drawOval((int) (play.loc[0] + myPath[0]) - 2,
-						(int) (play.loc[1] + myPath[1]) - 2, 4, 4);
+				g.drawOval((int) (pX + myPath[0]) - 2,
+						(int) (pY + myPath[1]) - 2, 4, 4);
 				pathing = true;
 				return;
 			}
 			// cant move
 			// moving = false;
-			float[] tangents = myAngleThing(new float[] { play.loc[0],
-					play.loc[1] }, play.radius, new float[] { treeInfo[0],
-					treeInfo[1] }, treeInfo[2]);
+			float[] tangents = myAngleThing(new float[] { pX, pY }, pRadius,
+					new float[] { treeInfo[0], treeInfo[1] }, treeInfo[2]);
 			path = new float[0];
 			direction = JaMa.appendFloatArAr(direction, new float[] { 0,
 					tangents[0], tangents[1], tangents[6] });
@@ -437,16 +343,16 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 			direction[1] = JaMa.appendArFloatAr(direction[1], new float[] { 1,
 					tangents[5] });
 
-			tangents = myAngleThing(new float[] { tarX, tarY }, play.radius,
+			tangents = myAngleThing(new float[] { tarX, tarY }, pRadius,
 					new float[] { treeInfo[0], treeInfo[1] }, treeInfo[2]);
 			System.out.println("tangents[2]: " + tangents[2]);
 			System.out.println("tangents[5]: " + tangents[5]);
 			// tangents from tar
 			// plusThea from player should get subThea from tar.
 			direction[0] = JaMa.appendArFloatAr(direction[0], new float[] {
-					tangents[5], play.radius + treeInfo[2] });
+					tangents[5], pRadius + treeInfo[2] });
 			direction[1] = JaMa.appendArFloatAr(direction[1], new float[] {
-					tangents[2], play.radius + treeInfo[2] });
+					tangents[2], pRadius + treeInfo[2] });
 
 			direction[0] = JaMa.appendArFloatAr(direction[0], new float[] { 0,
 					-tangents[3], -tangents[4], tangents[6] });
@@ -522,15 +428,17 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	}
 
 	float[] myAngleThing(float[] play, float pRad, float[] tree, float tRad) {
-		// Returnes the two point tangental play and tree
-
 		// if |delta| < pRad + tRad
 		// get thea of play and project it out from tree to a dist of pRad+tRad.
 		// This is the plusPoint and subPoint.
 		float[] delta = Vect2d.vectSub(tree, play);
 		float hyp = Vect2d.norm(delta);
 		float opp = pRad + tRad;
+		// System.out.println("hyp * hyp: " + hyp * hyp);
+		// System.out.println("opp * opp: " + opp * opp);
 		float adj = (float) Math.sqrt(Math.abs(hyp * hyp - opp * opp));
+		// System.out.println("adj: " + adj);
+		// System.out.println("opp: " + opp);
 		float treeThea = Vect2d.pointToThea(delta);
 		float shapeThea = Vect2d.pointToThea(new float[] { adj, opp });
 		// how to tell is to subtract or add shape thea.
@@ -551,6 +459,9 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		// plus point minus tree
 		float[] relAddPoint = Vect2d.vectSub(Vect2d.vectAdd(play, addPoint),
 				tree);
+		// Vect2d.sayVect("play", play);
+		// Vect2d.sayVect("addPoint", addPoint);
+		// Vect2d.sayVect("relAddPoint", relAddPoint);
 		float[] relSubPoint = Vect2d.vectSub(Vect2d.vectAdd(play, subPoint),
 				tree);
 		g.setColor(Color.GREEN);
@@ -560,8 +471,10 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		g.drawOval((int) (relSubPoint[0] + tree[0]) - 4,
 				(int) (relSubPoint[1] + tree[1]) - 4, 8, 8);
 		float relAddThea = Vect2d.pointToThea(relAddPoint);
+		// System.out.println("relAddThea: " + relAddThea);
 		float relSubThea = Vect2d.pointToThea(relSubPoint);
 		addPoint = Vect2d.normalize(addPoint);
+		// Vect2d.sayVect("addPoint", addPoint);
 		subPoint = Vect2d.normalize(subPoint);
 		System.out.println("subPoint[0]: " + subPoint[0]);
 		return new float[] { addPoint[0], addPoint[1], relAddThea, subPoint[0],
@@ -569,63 +482,38 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	}
 
 	void draw() {
-		g.setColor(Color.LIGHT_GRAY);
+		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, width, height);
+		// g.setColor(Color.BLUE);
+		// g.drawOval((int) (pX - pRadius + .5f), (int) (pY - pRadius + .5f),
+		// (int) (pRadius * 2 + .5f), (int) (pRadius * 2 + .5f));
+		fillCircleRel(Color.BLUE, pX, pY, pRadius);
 		if (playSel == true) {
-			fillCircleRel(Color.YELLOW, play.loc[0], play.loc[1],
-					play.radius + 2);
+			drawCircleRel(Color.YELLOW, pX, pY, pRadius + 1);
 		}
-		fillCircleRel(Color.BLUE, play.loc[0], play.loc[1], play.radius);
+		// g.setColor(Color.GREEN);
+		// g.fillOval((int) (treeInfo[0] - treeInfo[2]),
+		// (int) (treeInfo[1] - treeInfo[2]), (int) treeInfo[2] * 2,
+		// (int) treeInfo[2] * 2);
+		drawCircleRel(Color.GREEN, treeInfo[0], treeInfo[1], treeInfo[2]);
 
-		fillCircleRel(new Color(66, 33, 00), treeInfo[0], treeInfo[1],
-				treeInfo[2]);
-		fillCircleRel(Color.GREEN, treeInfo[0], treeInfo[1], treeInfo[2] - 2);
+		// drawCharInfo();
 
-		/**
-		 * Overlaying panels
-		 */
-		// Draws players inventory.
-		if (play.invInfo[4] == 1) {
-			play.drawInv(g);
+		// draws panels
+		for (int p = 0; p < panels.length; p++) {
+			panels[p].draw(g);
 		}
 	}
 
-	void entitySel(float[] clickLoc) {
-		// Finds if any entities are located at the click location and sets them
-		// to selected.
-		// Vect2d.sayVect("clickLoc", clickLoc);
-		// Vect2d.sayVect("cameraLoc", cameraLoc);
-		// System.out.println("playLoc (" + play.loc[0] + ", " + play.loc[1] +
-		// ")");
-		float dist = (float) Math.sqrt(Math.pow(
-				(cameraLoc[0] + clickLoc[0] - play.loc[0]), 2)
-				+ Math.pow((cameraLoc[1] + clickLoc[1] - play.loc[1]), 2));
-		// System.out.println("Dist: " + dist);
-		if (dist <= play.radius) {
-			// System.out.println("playClicked");
-			playSel = true;
-		} else {
-			playSel = false;
-			// charInfo = false;
-			// panels[0].closed = true;
-			play.invInfo[4] = 0;
-			System.out.println("close");
+	boolean charInfo = false;
+	float[] infoLoc = { 400, 80, 200, 300 };
 
+	void drawCharInfo() {
+		if (charInfo) {
+			g.setColor(Color.WHITE);
+			g.fillRect((int) infoLoc[0], (int) infoLoc[1], (int) infoLoc[2],
+					(int) infoLoc[3]);
 		}
-	}
-
-	/**
-	 * Initiations
-	 */
-
-	void initPlayer() {
-		play = new Unit(new float[] { 60, 90 }, 20, 12, Color.BLUE);
-		// panels = new IndieInv[1];
-		int invWidth = 240;
-		int invHeight = 300;
-		// panels[0] = new IndieInv(width - 40 - invWidth, 20, invWidth,
-		// invHeight, 4, 12, 18, 2, 6, true);
-		play.addItem(1);
 	}
 
 	/**
@@ -634,24 +522,23 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 
 	void drawCircle(Color color, float[] circLoc, float radius) {
 		g.setColor(color);
-		g.drawOval((int) (circLoc[0] - radius + .5f), (int) (circLoc[1]
-				- radius + .5f), (int) (radius * 2), (int) (radius * 2));
+		g.drawOval((int) (circLoc[0] - radius), (int) (circLoc[1] - radius),
+				(int) (radius * 2), (int) (radius * 2));
 	}
 
 	void drawCircleRel(Color color, float[] circLoc, float radius) {
 		g.setColor(color);
 		float deltax = cameraLoc[0];
 		float deltay = cameraLoc[1];
-		g.drawOval((int) (circLoc[0] - radius - deltax + .5f),
-				(int) (circLoc[1] - radius + deltay + .5f), (int) (radius * 2),
-				(int) (radius * 2));
+		g.drawOval((int) (circLoc[0] - radius - deltax), (int) (circLoc[1]
+				- radius + deltay), (int) (radius * 2), (int) (radius * 2));
 	}
 
 	void drawCircleRel(Color color, float circX, float circY, float radius) {
 		g.setColor(color);
 		float deltax = cameraLoc[0];
 		float deltay = cameraLoc[1];
-		g.drawOval((int) (circX - radius - deltax + .5f), (int) (circY - radius
+		g.drawOval((int) (circX - radius - deltax), (int) (circY - radius
 				- deltay + .5f), (int) (radius * 2), (int) (radius * 2));
 	}
 
@@ -659,7 +546,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		g.setColor(color);
 		float deltax = cameraLoc[0];
 		float deltay = cameraLoc[1];
-		g.fillOval((int) (circX - radius - deltax + .5f), (int) (circY - radius
+		g.fillOval((int) (circX - radius - deltax), (int) (circY - radius
 				- deltay + .5f), (int) (radius * 2), (int) (radius * 2));
 	}
 
@@ -680,31 +567,83 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	}
 
 	public void imageInit() {
-		imageAr = new Image[1];
-		ImageIcon ie = new ImageIcon(this.getClass().getResource(
-				"res/Wepons/icon_axe1.png"));
-		imageAr[0] = ie.getImage();
+
+		// imageAr = new Image[1];
+		// ImageIcon ie = new ImageIcon(this.getClass().getResource(
+		// "res/image.png"));
+		// imageAr[0] = ie.getImage();
+
 	}
 
 	@Override
 	public void mousePressed(MouseEvent me) {
-		if (!mouseD) {
-			lastDragLoc[0] = me.getX();
-			lastDragLoc[1] = me.getY();
+		// float[][] seg1 = { { 2, 1 }, { 4, 4 } };
+		// float[][] seg2 = { { 1, 4 }, { 2, 3 } };
+		// JaMa.distSegmenttoSegment(seg1, seg2);
+
+		// renderGame();
+
+		float[] mouseRel = { cameraLoc[0] + me.getX(), cameraLoc[1] + me.getY() };
+
+		Vect2d.sayVect("mouseRel", mouseRel);
+
+		if (me.getButton() == MouseEvent.BUTTON3) {
+			// moving = true;
+			setPath = true;
+			// tarX = me.getX();
+			// tarY = me.getY();
+			tarX = mouseRel[0];
+			tarY = mouseRel[1];
+			g.setColor(Color.RED);
+			g.drawOval((int) tarX - 2, (int) tarY - 2, 4, 4);
+		} else {
+			b1press = true;
+			// moving = false;
+			// setPath = false;
+			dragLoc[0] = me.getX();
+			dragLoc[1] = me.getY();
 		}
-		mousePQ.add(new int[] { me.getX(), me.getY(), me.getButton() });
+		// pathing = false;
+
+		// tang2circ(new float[] { 100, 100 }, 50, new float[] { 25, 200 }, 25);
+		// float[] quad = quadEq(82, -906, 2493);
+		// System.out.println("quad[0]: " + quad[0]);
+		// System.out.println("quad[1]: " + quad[1]);
+		// scalarOfVectOnCirc(new float[] { 5, 1 }, 1, new float[] { 3, 6 }, 3,
+		// new float[] { 1, 9 });
+	}
+
+	void entitySel(float[] clickLoc) {
+		// Finds if any entities are located at the click location and sets them
+		// to selected.
+		Vect2d.sayVect("clickLoc", clickLoc);
+		Vect2d.sayVect("cameraLoc", cameraLoc);
+		System.out.println("playLoc (" + pX + ", " + pY + ")");
+		float dist = (float) Math.sqrt(Math.pow(
+				(cameraLoc[0] + clickLoc[0] - pX), 2)
+				+ Math.pow((cameraLoc[1] + clickLoc[1] - pY), 2));
+		System.out.println("Dist: " + dist);
+		if (dist <= pRadius) {
+			// System.out.println("playClicked");
+			playSel = true;
+		} else {
+			playSel = false;
+			charInfo = false;
+		}
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent me) {
-		mouseRQ.add(new int[] { me.getX(), me.getY(), me.getButton() });
+		if (me.getButton() == MouseEvent.BUTTON1) {
+			b1press = false;
+		}
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent me) {
-		// if (me.getButton() == MouseEvent.BUTTON1) {
-		// entitySel(new float[] { me.getX(), me.getY() });
-		// }
+		if (me.getButton() == MouseEvent.BUTTON1) {
+			entitySel(new float[] { me.getX(), me.getY() });
+		}
 	}
 
 	@Override
@@ -722,32 +661,19 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	@Override
 	public void keyPressed(KeyEvent ke) {
 		if (ke.getKeyCode() == KeyEvent.VK_C) {
-			if (shiftP) {
-				if (playSel) {
-					// panels[0].closed = false;
-					play.invInfo[4] = 1;
-					// panels[0].setX(width - 40 - panels[0].getWidth());
-					// panels[0].setY(20);
-					play.setInvLoc(width - 40 - play.getInvInfo()[2], 20);
-				}
+			if (playSel) {
+				charInfo = true;
+				System.out.println("true");
 			} else {
-				if (playSel) {
-					// charInfo = true;
-					// System.out.println("true");
-					// panels[0].closed = !panels[0].closed;
-					play.invInfo[4] = play.invInfo[4] == 0 ? 1 : 0;
-				}
+				charInfo = false;
 			}
-		} else if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {
-			shiftP = true;
 		}
 	}
 
 	@Override
-	public void keyReleased(KeyEvent ke) {
-		if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {
-			shiftP = true;
-		}
+	public void keyReleased(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
@@ -756,14 +682,27 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 
 	}
 
+	float[] dragLoc = new float[2];
+
+	boolean b1press = false;
+
 	@Override
 	public void mouseDragged(MouseEvent me) {
-		// System.out.println("lastB: " + lastButton);
-		dragLoc[0] = me.getX();
-		dragLoc[1] = me.getY();
-		// Vect2d.sayVect("dragLoc", dragLoc);
-		// Vect2d.sayVect("lastDragLoc", lastDragLoc);
-		mouseD = true;
+		// System.out.println("me.getButton(): " + me.getButton());
+		// System.out.println("MouseEvent.BUTTON1: " + MouseEvent.BUTTON1);
+		// if (me.getButton() == MouseEvent.BUTTON1) {
+		if (b1press) {
+			System.out.println("drag");
+			Vect2d.sayVect("dragLoc", dragLoc);
+			float deltaX = dragLoc[0] - me.getX();
+			float deltaY = dragLoc[1] - me.getY();
+			dragLoc[0] = me.getX();
+			dragLoc[1] = me.getY();
+			cameraLoc[0] += deltaX;
+			cameraLoc[1] += deltaY;
+			System.out.println("dealta (" + deltaX + ", " + deltaY + ")");
+			Vect2d.sayVect("cameraLoc", cameraLoc);
+		}
 	}
 
 	@Override

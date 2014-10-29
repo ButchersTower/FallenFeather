@@ -17,7 +17,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import FallenFeather.lib.*;
-import SandDrag.Player;
 
 public class Panel extends JPanel implements Runnable, MouseListener,
 		KeyListener, MouseMotionListener {
@@ -71,6 +70,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	// player selected.
 	boolean playSel = false;
 
+	IndieInv[] panels = new IndieInv[1];
 	Unit play;
 
 	int[] mouseLast = new int[2];
@@ -242,7 +242,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 			// start cutting trees once there.
 			lastButton = 3;
 			// If you are right clicking on a panel then don't move.
-			if (!play.lapCheck(mo[0], mo[1])) {
+			if (!panels[0].lapCheck(mo[0], mo[1])) {
 				// If your unit is not selected then dont move it.
 				if (playSel) {
 					setPath = true;
@@ -253,10 +253,9 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		} else if (mo[2] == MouseEvent.BUTTON1) {
 			lastButton = 1;
 			boolean panelTouch = false;
-			if (play.invInfo[4] == 1) {
-				if (play.clickHandle(mo[0], mo[1])) {
-					panelTouch = true;
-				}
+			for (IndieInv p : panels) {
+				panelTouch = p.closed ? panelTouch : p
+						.clickHandle(mo[0], mo[1]) ? true : panelTouch;
 			}
 			if (panelTouch) {
 				clickedOnPanel = true;
@@ -275,14 +274,16 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				cameraLoc[0] -= delta[0];
 				cameraLoc[1] -= delta[1];
 			} else {
-				if (play.getInvInfo()[5] == 1) {
-					play.moveInvLoc(delta[0], delta[1]);
+				for (int p = 0; p < panels.length; p++) {
+					if (panels[p].clickTop) {
+						panels[p].x += delta[0];
+						panels[p].y += delta[1];
+					}
 				}
 			}
 		} else if (lastButton == 3) {
 			// If you are right clicking on a panel then don't move.
-			// if (!panels[0].lapCheck(dragLoc[0], dragLoc[1])) {
-			if (!play.lapCheck(dragLoc[0], dragLoc[1])) {
+			if (!panels[0].lapCheck(dragLoc[0], dragLoc[1])) {
 				// If your unit is not selected then dont move it.
 				if (playSel) {
 					setPath = true;
@@ -581,12 +582,9 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				treeInfo[2]);
 		fillCircleRel(Color.GREEN, treeInfo[0], treeInfo[1], treeInfo[2] - 2);
 
-		/**
-		 * Overlaying panels
-		 */
-		// Draws players inventory.
-		if (play.invInfo[4] == 1) {
-			play.drawInv(g);
+		// draws panels
+		for (int p = 0; p < panels.length; p++) {
+			panels[p].draw(g, play.getInv());
 		}
 	}
 
@@ -607,8 +605,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		} else {
 			playSel = false;
 			// charInfo = false;
-			// panels[0].closed = true;
-			play.invInfo[4] = 0;
+			panels[0].closed = true;
 			System.out.println("close");
 
 		}
@@ -620,11 +617,11 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 
 	void initPlayer() {
 		play = new Unit(new float[] { 60, 90 }, 20, 12, Color.BLUE);
-		// panels = new IndieInv[1];
+		panels = new IndieInv[1];
 		int invWidth = 240;
 		int invHeight = 300;
-		// panels[0] = new IndieInv(width - 40 - invWidth, 20, invWidth,
-		// invHeight, 4, 12, 18, 2, 6, true);
+		panels[0] = new IndieInv(width - 40 - invWidth, 20, invWidth,
+				invHeight, 4, 12, 18, 2, 6, true);
 		play.addItem(1);
 	}
 
@@ -724,18 +721,15 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		if (ke.getKeyCode() == KeyEvent.VK_C) {
 			if (shiftP) {
 				if (playSel) {
-					// panels[0].closed = false;
-					play.invInfo[4] = 1;
-					// panels[0].setX(width - 40 - panels[0].getWidth());
-					// panels[0].setY(20);
-					play.setInvLoc(width - 40 - play.getInvInfo()[2], 20);
+					panels[0].closed = false;
+					panels[0].setX(width - 40 - panels[0].getWidth());
+					panels[0].setY(20);
 				}
 			} else {
 				if (playSel) {
 					// charInfo = true;
 					// System.out.println("true");
-					// panels[0].closed = !panels[0].closed;
-					play.invInfo[4] = play.invInfo[4] == 0 ? 1 : 0;
+					panels[0].closed = !panels[0].closed;
 				}
 			}
 		} else if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {

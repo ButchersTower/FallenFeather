@@ -1,4 +1,4 @@
-package FallenFeather;
+package FallenFeather.old;
 
 public class Vect2d {
 	static float dot(float[] a, float[] b) {
