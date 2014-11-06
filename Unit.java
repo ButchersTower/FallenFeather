@@ -6,29 +6,30 @@ import java.awt.Graphics;
 import FallenFeather.lib.IndieShell;
 
 public class Unit {
-	float[] loc;
-	float radius;
-	float speed;
-	Color color;
+	private float[] loc;
+	private float radius;
+	private float speed;
+	private Color color;
 
 	// 12 inventory slots
-	int[][] inv = new int[12][2];
+	private int[][] inv = new int[12][2];
 
-	int topMargin = 12;
-	int margin = 4;
+	private int topMargin = 12;
+	private int margin = 4;
 
-	int invWidth = 240;
-	int invHeight = 300;
+	private int invWidth = 240;
+	private int invHeight = 300;
 
 	// ( x, y, width, height, closed/open, clickTop
-	int[] invInfo = { 700 - 40 - invWidth, 20, invWidth, invHeight, 0, 0 };
+	private int[] invInfo = { 700 - 40 - invWidth, 20, invWidth, invHeight, 0,
+			0 };
 
-	IndieShell shell = new IndieShell(margin, topMargin, 18, 2, 6);
+	private IndieShell shell = new IndieShell(margin, topMargin, 18, 2, 6);
 
-	int invMargin = 6;
-	int itemWidth = 32;
+	private int invMargin = 6;
+	private int itemWidth = 32;
 
-	int invColumns = (invWidth - 2 * margin) / (margin + itemWidth);
+	private int invColumns = (invWidth - 2 * margin) / (margin + itemWidth);
 
 	public Unit(float[] loc, float radius, float speed, Color color) {
 		this.loc = loc;
@@ -83,6 +84,10 @@ public class Unit {
 
 	float getRadius() {
 		return radius;
+	}
+
+	int[] getInvInfo() {
+		return invInfo;
 	}
 
 	public float getSpeed() {
@@ -184,10 +189,6 @@ public class Unit {
 	void moveInvLoc(int deltaX, int deltaY) {
 		invInfo[0] += deltaX;
 		invInfo[1] += deltaY;
-	}
-
-	int[] getInvInfo() {
-		return invInfo;
 	}
 
 }
