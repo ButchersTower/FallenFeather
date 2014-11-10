@@ -1,6 +1,6 @@
 package FallenFeather.old;
 
-public class JaMa {
+public class JaMaOld1 {
 	// line line distance.
 	// circle line distance.
 	// Edge wall.
@@ -8,16 +8,16 @@ public class JaMa {
 	static float distSegmenttoSegment(float[][] s1, float[][] s2) {
 		double SMALL_NUM = 0.00000001;
 		// Vector u = S1.P1 - S1.P0;
-		float[] u = Vect2d.vectSub(s1[1], s1[0]);
+		float[] u = Vect2dOld1.vectSub(s1[1], s1[0]);
 		// Vector v = S2.P1 - S2.P0;
-		float[] v = Vect2d.vectSub(s2[1], s2[0]);
+		float[] v = Vect2dOld1.vectSub(s2[1], s2[0]);
 		// Vector w = S1.P0 - S2.P0;
-		float[] w = Vect2d.vectSub(s1[0], s2[0]);
-		float a = Vect2d.dot(u, u); // always >= 0
-		float b = Vect2d.dot(u, v);
-		float c = Vect2d.dot(v, v); // always >= 0
-		float d = Vect2d.dot(u, w);
-		float e = Vect2d.dot(v, w);
+		float[] w = Vect2dOld1.vectSub(s1[0], s2[0]);
+		float a = Vect2dOld1.dot(u, u); // always >= 0
+		float b = Vect2dOld1.dot(u, v);
+		float c = Vect2dOld1.dot(v, v); // always >= 0
+		float d = Vect2dOld1.dot(u, w);
+		float e = Vect2dOld1.dot(v, w);
 		float D = a * c - b * b; // always >= 0
 		System.out.println("D: " + D);
 		float sc, sN, sD = D; // sc = sN / sD, default sD = D >= 0
@@ -87,24 +87,24 @@ public class JaMa {
 
 		// get the difference of the two closest points
 		// Vector dP = w + (sc * u) - (tc * v); // = S1(sc) - S2(tc)
-		float[] dP = Vect2d.vectAdd(
+		float[] dP = Vect2dOld1.vectAdd(
 				w,
-				Vect2d.vectSub(Vect2d.vectMultScalar(sc, u),
-						Vect2d.vectMultScalar(tc, v))); // =
+				Vect2dOld1.vectSub(Vect2dOld1.vectMultScalar(sc, u),
+						Vect2dOld1.vectMultScalar(tc, v))); // =
 		// S1(sc)
 		// -
 		// S2(tc)
 
 		// s1[0][0] + (s1[1] - s1[0]) * sc
 
-		float[] s1loc = Vect2d.vectAdd(s1[0],
-				Vect2d.vectMultScalar(sc, Vect2d.vectSub(s1[1], s1[0])));
+		float[] s1loc = Vect2dOld1.vectAdd(s1[0],
+				Vect2dOld1.vectMultScalar(sc, Vect2dOld1.vectSub(s1[1], s1[0])));
 		// System.out.println("loc1 (" + s1loc[0] + ", " + s1loc[1] + ")");
 
-		float[] s2loc = Vect2d.vectAdd(s2[0],
-				Vect2d.vectMultScalar(tc, Vect2d.vectSub(s2[1], s2[0])));
+		float[] s2loc = Vect2dOld1.vectAdd(s2[0],
+				Vect2dOld1.vectMultScalar(tc, Vect2dOld1.vectSub(s2[1], s2[0])));
 
-		return Vect2d.norm(dP); // return the closest distance
+		return Vect2dOld1.norm(dP); // return the closest distance
 
 	}
 }

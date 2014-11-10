@@ -1,4 +1,4 @@
-package FallenFeather;
+package FallenFeather.old;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,10 +16,12 @@ import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-import FallenFeather.lib.*;
-import SandDrag.Player;
+import FallenFeather.lib.Vect2d;
+import FallenFeather.lib.JaMa;
 
-public class Panel extends JPanel implements Runnable, MouseListener,
+import FallenFeather.Unit;
+
+public class PanelOld5 extends JPanel implements Runnable, MouseListener,
 		KeyListener, MouseMotionListener {
 	// This is going to be
 
@@ -80,7 +82,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 
 	String[] items = { "Axe", "Plank" };
 
-	public Panel() {
+	public PanelOld5() {
 		super();
 
 		setPreferredSize(new Dimension(width, height));
@@ -253,7 +255,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		} else if (mo[2] == MouseEvent.BUTTON1) {
 			lastButton = 1;
 			boolean panelTouch = false;
-			if (play.invInfo[4] == 1) {
+			if (play.getInvInfo()[4] == 1) {
 				if (play.clickHandle(mo[0], mo[1])) {
 					panelTouch = true;
 				}
@@ -304,7 +306,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	}
 
 	void followPath() {
-		playSpeedLeft = play.speed;
+		playSpeedLeft = play.getSpeed();
 		while (myPath.length > 0 && playSpeedLeft > 0) {
 			sortPath();
 		}
@@ -320,13 +322,13 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		if (myPath[0] == 0) {
 			// linear so go straight
 			if (myPath[3] > playSpeedLeft) {
-				play.loc[0] += myPath[1] * playSpeedLeft;
-				play.loc[1] += myPath[2] * playSpeedLeft;
+				play.getLoc()[0] += myPath[1] * playSpeedLeft;
+				play.getLoc()[1] += myPath[2] * playSpeedLeft;
 				myPath[3] -= playSpeedLeft;
 				playSpeedLeft = 0;
 			} else {
-				play.loc[0] += myPath[1] * myPath[3];
-				play.loc[1] += myPath[2] * myPath[3];
+				play.getLoc()[0] += myPath[1] * myPath[3];
+				play.getLoc()[1] += myPath[2] * myPath[3];
 				playSpeedLeft -= myPath[3];
 				// delete the four. and move on.
 				myPath = JaMa.removeFirstFloatAr(myPath, 4);
@@ -355,16 +357,16 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				g.setColor(Color.MAGENTA);
 				g.drawOval((int) (treeInfo[0] + newLoc[0]) - 3,
 						(int) (treeInfo[1] + newLoc[1]) - 3, 6, 6);
-				play.loc[0] = treeInfo[0] + newLoc[0];
-				play.loc[1] = treeInfo[1] + newLoc[1];
-				System.out.println("play.loc[0]: " + play.loc[0]
-						+ ",   play.loc[1]: " + play.loc[1]);
+				play.getLoc()[0] = treeInfo[0] + newLoc[0];
+				play.getLoc()[1] = treeInfo[1] + newLoc[1];
+				System.out.println("play.getLoc()[0]: " + play.getLoc()[0]
+						+ ",   play.getLoc()[1]: " + play.getLoc()[1]);
 				// pathing = false;
 				playSpeedLeft = 0;
 			} else {
 				float[] newLoc = Vect2d.theaToPoint(myPath[2], myPath[3]);
-				play.loc[0] = treeInfo[0] + newLoc[0];
-				play.loc[1] = treeInfo[1] + newLoc[1];
+				play.getLoc()[0] = treeInfo[0] + newLoc[0];
+				play.getLoc()[1] = treeInfo[1] + newLoc[1];
 				myPath = JaMa.removeFirstFloatAr(myPath, 4);
 				playSpeedLeft -= edgeLength;
 			}
@@ -376,18 +378,20 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 
 		direction = new float[0][];
 		// get delta vector. scale to moveSpeed.
-		float[] deltaVect = { tarX - play.loc[0], tarY - play.loc[1] };
+		float[] deltaVect = { tarX - play.getLoc()[0], tarY - play.getLoc()[1] };
 
 		if (distPointToVect(Vect2d.vectSub(new float[] { treeInfo[0],
-				treeInfo[1] }, new float[] { play.loc[0], play.loc[1] }),
-				deltaVect) < treeInfo[2] + play.radius) {
+				treeInfo[1] },
+				new float[] { play.getLoc()[0], play.getLoc()[1] }), deltaVect) < treeInfo[2]
+				+ play.getRadius()) {
 			// if the target point was inside of a tree then project it out.
 			float[] tarRelTree = new float[] { tarX - treeInfo[0],
 					tarY - treeInfo[1] };
-			if (Vect2d.norm(tarRelTree) <= play.radius + treeInfo[2]) {
+			if (Vect2d.norm(tarRelTree) <= play.getRadius() + treeInfo[2]) {
 				// add small num to bypass rounding mistakes.
 				// float[] pushedTar = Vect2d.theaToPoint(
-				// Vect2d.pointToThea(tarRelTree), play.radius + treeInfo[2]
+				// Vect2d.pointToThea(tarRelTree), play.getRadius() +
+				// treeInfo[2]
 				// + smallNum);
 				/**
 				 * Instead of pushing it out pick the closest point between play
@@ -395,16 +399,17 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				 */
 				// treeInfo.l is 3 but Ve2d only reads the first two increments.
 				float[] treeRelPlay = Vect2d.vectSub(treeInfo, new float[] {
-						play.loc[0], play.loc[1] });
+						play.getLoc()[0], play.getLoc()[1] });
 				// deltaVect scaled down by plaR + treR.
 				float ta = Vect2d.norm(treeRelPlay);
 				System.out.println("b4 ta: " + ta);
 				treeRelPlay = Vect2d.vectMultScalar(
-						(ta - (play.radius + treeInfo[2])) / ta, treeRelPlay);
+						(ta - (play.getRadius() + treeInfo[2])) / ta,
+						treeRelPlay);
 				ta = Vect2d.norm(treeRelPlay);
 				System.out.println("cd ta: " + ta);
-				// tarX = play.loc[0] + treeRelPlay[0];
-				// tarY = play.loc[1] + treeRelPlay[1];
+				// tarX = play.getLoc()[0] + treeRelPlay[0];
+				// tarY = play.getLoc()[1] + treeRelPlay[1];
 				// tarX = treeInfo[0] + pushedTar[0];
 				// tarY = treeInfo[1] + pushedTar[1];
 				// playMoveWhole();
@@ -413,16 +418,16 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				myPath = new float[] { 0, treeRelPlay[0] / ta,
 						treeRelPlay[1] / ta, ta };
 				g.setColor(Color.ORANGE);
-				g.drawOval((int) (play.loc[0] + myPath[0]) - 2,
-						(int) (play.loc[1] + myPath[1]) - 2, 4, 4);
+				g.drawOval((int) (play.getLoc()[0] + myPath[0]) - 2,
+						(int) (play.getLoc()[1] + myPath[1]) - 2, 4, 4);
 				pathing = true;
 				return;
 			}
 			// cant move
 			// moving = false;
-			float[] tangents = myAngleThing(new float[] { play.loc[0],
-					play.loc[1] }, play.radius, new float[] { treeInfo[0],
-					treeInfo[1] }, treeInfo[2]);
+			float[] tangents = myAngleThing(new float[] { play.getLoc()[0],
+					play.getLoc()[1] }, play.getRadius(), new float[] {
+					treeInfo[0], treeInfo[1] }, treeInfo[2]);
 			path = new float[0];
 			direction = JaMa.appendFloatArAr(direction, new float[] { 0,
 					tangents[0], tangents[1], tangents[6] });
@@ -437,16 +442,17 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 			direction[1] = JaMa.appendArFloatAr(direction[1], new float[] { 1,
 					tangents[5] });
 
-			tangents = myAngleThing(new float[] { tarX, tarY }, play.radius,
-					new float[] { treeInfo[0], treeInfo[1] }, treeInfo[2]);
+			tangents = myAngleThing(new float[] { tarX, tarY },
+					play.getRadius(), new float[] { treeInfo[0], treeInfo[1] },
+					treeInfo[2]);
 			System.out.println("tangents[2]: " + tangents[2]);
 			System.out.println("tangents[5]: " + tangents[5]);
 			// tangents from tar
 			// plusThea from player should get subThea from tar.
 			direction[0] = JaMa.appendArFloatAr(direction[0], new float[] {
-					tangents[5], play.radius + treeInfo[2] });
+					tangents[5], play.getRadius() + treeInfo[2] });
 			direction[1] = JaMa.appendArFloatAr(direction[1], new float[] {
-					tangents[2], play.radius + treeInfo[2] });
+					tangents[2], play.getRadius() + treeInfo[2] });
 
 			direction[0] = JaMa.appendArFloatAr(direction[0], new float[] { 0,
 					-tangents[3], -tangents[4], tangents[6] });
@@ -572,10 +578,11 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(0, 0, width, height);
 		if (playSel == true) {
-			fillCircleRel(Color.YELLOW, play.loc[0], play.loc[1],
-					play.radius + 2);
+			fillCircleRel(Color.YELLOW, play.getLoc()[0], play.getLoc()[1],
+					play.getRadius() + 2);
 		}
-		fillCircleRel(Color.BLUE, play.loc[0], play.loc[1], play.radius);
+		fillCircleRel(Color.BLUE, play.getLoc()[0], play.getLoc()[1],
+				play.getRadius());
 
 		fillCircleRel(new Color(66, 33, 00), treeInfo[0], treeInfo[1],
 				treeInfo[2]);
@@ -585,7 +592,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		 * Overlaying panels
 		 */
 		// Draws players inventory.
-		if (play.invInfo[4] == 1) {
+		if (play.getInvInfo()[4] == 1) {
 			play.drawInv(g);
 		}
 	}
@@ -595,20 +602,21 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		// to selected.
 		// Vect2d.sayVect("clickLoc", clickLoc);
 		// Vect2d.sayVect("cameraLoc", cameraLoc);
-		// System.out.println("playLoc (" + play.loc[0] + ", " + play.loc[1] +
+		// System.out.println("playLoc (" + play.getLoc()[0] + ", " +
+		// play.getLoc()[1] +
 		// ")");
 		float dist = (float) Math.sqrt(Math.pow(
-				(cameraLoc[0] + clickLoc[0] - play.loc[0]), 2)
-				+ Math.pow((cameraLoc[1] + clickLoc[1] - play.loc[1]), 2));
+				(cameraLoc[0] + clickLoc[0] - play.getLoc()[0]), 2)
+				+ Math.pow((cameraLoc[1] + clickLoc[1] - play.getLoc()[1]), 2));
 		// System.out.println("Dist: " + dist);
-		if (dist <= play.radius) {
+		if (dist <= play.getRadius()) {
 			// System.out.println("playClicked");
 			playSel = true;
 		} else {
 			playSel = false;
 			// charInfo = false;
 			// panels[0].closed = true;
-			play.invInfo[4] = 0;
+			play.getInvInfo()[4] = 0;
 			System.out.println("close");
 
 		}
@@ -725,7 +733,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 			if (shiftP) {
 				if (playSel) {
 					// panels[0].closed = false;
-					play.invInfo[4] = 1;
+					play.getInvInfo()[4] = 1;
 					// panels[0].setX(width - 40 - panels[0].getWidth());
 					// panels[0].setY(20);
 					play.setInvLoc(width - 40 - play.getInvInfo()[2], 20);
@@ -735,7 +743,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 					// charInfo = true;
 					// System.out.println("true");
 					// panels[0].closed = !panels[0].closed;
-					play.invInfo[4] = play.invInfo[4] == 0 ? 1 : 0;
+					play.getInvInfo()[4] = play.getInvInfo()[4] == 0 ? 1 : 0;
 				}
 			}
 		} else if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {

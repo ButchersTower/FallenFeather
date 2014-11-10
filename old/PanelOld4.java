@@ -330,12 +330,12 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				play.loc[1] += myPath[2] * myPath[3];
 				playSpeedLeft -= myPath[3];
 				// delete the four. and move on.
-				myPath = JaMa.removeFirstFloatAr(myPath, 4);
+				myPath = JaMaOld1.removeFirstFloatAr(myPath, 4);
 			}
 		} else if (myPath[0] == 1) {
 			System.out.println("path 1");
 			// around edge
-			float edgeLength = Math.abs(Vect2d.theaSub(myPath[1], myPath[2])
+			float edgeLength = Math.abs(Vect2dOld1.theaSub(myPath[1], myPath[2])
 					* myPath[3]);
 			System.out.println("edgeLength: " + edgeLength);
 			if (edgeLength > playSpeedLeft) {
@@ -345,14 +345,14 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				System.out.println("possableThea: " + possableThea);
 				float newThea;
 				if (lowest == 1) {
-					newThea = Vect2d.theaAdd(myPath[1], possableThea);
+					newThea = Vect2dOld1.theaAdd(myPath[1], possableThea);
 					// add thea
 				} else {
-					newThea = Vect2d.theaSub(myPath[1], possableThea);
+					newThea = Vect2dOld1.theaSub(myPath[1], possableThea);
 					// sub thea
 				}
 				myPath[1] = newThea;
-				float[] newLoc = Vect2d.theaToPoint(newThea, myPath[3]);
+				float[] newLoc = Vect2dOld1.theaToPoint(newThea, myPath[3]);
 				g.setColor(Color.MAGENTA);
 				g.drawOval((int) (treeInfo[0] + newLoc[0]) - 3,
 						(int) (treeInfo[1] + newLoc[1]) - 3, 6, 6);
@@ -363,10 +363,10 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				// pathing = false;
 				playSpeedLeft = 0;
 			} else {
-				float[] newLoc = Vect2d.theaToPoint(myPath[2], myPath[3]);
+				float[] newLoc = Vect2dOld1.theaToPoint(myPath[2], myPath[3]);
 				play.loc[0] = treeInfo[0] + newLoc[0];
 				play.loc[1] = treeInfo[1] + newLoc[1];
-				myPath = JaMa.removeFirstFloatAr(myPath, 4);
+				myPath = JaMaOld1.removeFirstFloatAr(myPath, 4);
 				playSpeedLeft -= edgeLength;
 			}
 		}
@@ -379,13 +379,13 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		// get delta vector. scale to moveSpeed.
 		float[] deltaVect = { tarX - play.loc[0], tarY - play.loc[1] };
 
-		if (distPointToVect(Vect2d.vectSub(new float[] { treeInfo[0],
+		if (distPointToVect(Vect2dOld1.vectSub(new float[] { treeInfo[0],
 				treeInfo[1] }, new float[] { play.loc[0], play.loc[1] }),
 				deltaVect) < treeInfo[2] + play.radius) {
 			// if the target point was inside of a tree then project it out.
 			float[] tarRelTree = new float[] { tarX - treeInfo[0],
 					tarY - treeInfo[1] };
-			if (Vect2d.norm(tarRelTree) <= play.radius + treeInfo[2]) {
+			if (Vect2dOld1.norm(tarRelTree) <= play.radius + treeInfo[2]) {
 				// add small num to bypass rounding mistakes.
 				// float[] pushedTar = Vect2d.theaToPoint(
 				// Vect2d.pointToThea(tarRelTree), play.radius + treeInfo[2]
@@ -395,14 +395,14 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				 * and tree.
 				 */
 				// treeInfo.l is 3 but Ve2d only reads the first two increments.
-				float[] treeRelPlay = Vect2d.vectSub(treeInfo, new float[] {
+				float[] treeRelPlay = Vect2dOld1.vectSub(treeInfo, new float[] {
 						play.loc[0], play.loc[1] });
 				// deltaVect scaled down by plaR + treR.
-				float ta = Vect2d.norm(treeRelPlay);
+				float ta = Vect2dOld1.norm(treeRelPlay);
 				System.out.println("b4 ta: " + ta);
-				treeRelPlay = Vect2d.vectMultScalar(
+				treeRelPlay = Vect2dOld1.vectMultScalar(
 						(ta - (play.radius + treeInfo[2])) / ta, treeRelPlay);
-				ta = Vect2d.norm(treeRelPlay);
+				ta = Vect2dOld1.norm(treeRelPlay);
 				System.out.println("cd ta: " + ta);
 				// tarX = play.loc[0] + treeRelPlay[0];
 				// tarY = play.loc[1] + treeRelPlay[1];
@@ -425,17 +425,17 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 					play.loc[1] }, play.radius, new float[] { treeInfo[0],
 					treeInfo[1] }, treeInfo[2]);
 			path = new float[0];
-			direction = JaMa.appendFloatArAr(direction, new float[] { 0,
+			direction = JaMaOld1.appendFloatArAr(direction, new float[] { 0,
 					tangents[0], tangents[1], tangents[6] });
-			direction = JaMa.appendFloatArAr(direction, new float[] { 0,
+			direction = JaMaOld1.appendFloatArAr(direction, new float[] { 0,
 					tangents[3], tangents[4], tangents[6] });
 
 			// tangents from play
-			direction[0] = JaMa.appendArFloatAr(direction[0], new float[] { 1,
+			direction[0] = JaMaOld1.appendArFloatAr(direction[0], new float[] { 1,
 					tangents[2] });
 			System.out.println("tangents[2]: " + tangents[2]);
 			System.out.println("tangents[5]: " + tangents[5]);
-			direction[1] = JaMa.appendArFloatAr(direction[1], new float[] { 1,
+			direction[1] = JaMaOld1.appendArFloatAr(direction[1], new float[] { 1,
 					tangents[5] });
 
 			tangents = myAngleThing(new float[] { tarX, tarY }, play.radius,
@@ -444,14 +444,14 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 			System.out.println("tangents[5]: " + tangents[5]);
 			// tangents from tar
 			// plusThea from player should get subThea from tar.
-			direction[0] = JaMa.appendArFloatAr(direction[0], new float[] {
+			direction[0] = JaMaOld1.appendArFloatAr(direction[0], new float[] {
 					tangents[5], play.radius + treeInfo[2] });
-			direction[1] = JaMa.appendArFloatAr(direction[1], new float[] {
+			direction[1] = JaMaOld1.appendArFloatAr(direction[1], new float[] {
 					tangents[2], play.radius + treeInfo[2] });
 
-			direction[0] = JaMa.appendArFloatAr(direction[0], new float[] { 0,
+			direction[0] = JaMaOld1.appendArFloatAr(direction[0], new float[] { 0,
 					-tangents[3], -tangents[4], tangents[6] });
-			direction[1] = JaMa.appendArFloatAr(direction[1], new float[] { 0,
+			direction[1] = JaMaOld1.appendArFloatAr(direction[1], new float[] { 0,
 					-tangents[0], -tangents[1], tangents[6] });
 			System.out.println("direction[0][" + 9 + "]: " + direction[0][9]);
 			System.out.println("direction[0][" + 10 + "]: " + direction[0][10]);
@@ -467,8 +467,8 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 			myPath = direction[lowest];
 			pathing = true;
 		} else {
-			float deltaVecta = Vect2d.norm(deltaVect);
-			deltaVect = Vect2d.normalize(deltaVect);
+			float deltaVecta = Vect2dOld1.norm(deltaVect);
+			deltaVect = Vect2dOld1.normalize(deltaVect);
 			myPath = new float[] { 0, deltaVect[0], deltaVect[1], deltaVecta };
 			pathing = true;
 		}
@@ -480,18 +480,18 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		// then reject and that is dist.
 
 		float dist;
-		float projScalar = Vect2d.scalarOfProject(point, vect);
+		float projScalar = Vect2dOld1.scalarOfProject(point, vect);
 		// System.out.println("projScalar: " + projScalar);
 		if (projScalar > 1) {
 			// get dist from the end of seg.
-			dist = Vect2d.norm(Vect2d.vectSub(point, vect));
+			dist = Vect2dOld1.norm(Vect2dOld1.vectSub(point, vect));
 		} else if (projScalar < 0) {
 			// get the dist from the start of seg.
-			dist = Vect2d.norm(point);
+			dist = Vect2dOld1.norm(point);
 		} else {
 			// dist is point rej proj
-			dist = Vect2d.norm(Vect2d.vectSub(point,
-					Vect2d.vectMultScalar(projScalar, vect)));
+			dist = Vect2dOld1.norm(Vect2dOld1.vectSub(point,
+					Vect2dOld1.vectMultScalar(projScalar, vect)));
 		}
 		return dist;
 	}
@@ -505,7 +505,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 				if (direction[d][i * 4] == 0) {
 					sums[d] += direction[d][i * 4 + 3];
 				} else {
-					sums[d] += Math.abs(Vect2d.theaSub(direction[d][i * 4 + 1],
+					sums[d] += Math.abs(Vect2dOld1.theaSub(direction[d][i * 4 + 1],
 							direction[d][i * 4 + 2]) * direction[d][i * 4 + 3]);
 				}
 			}
@@ -528,12 +528,12 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		// if |delta| < pRad + tRad
 		// get thea of play and project it out from tree to a dist of pRad+tRad.
 		// This is the plusPoint and subPoint.
-		float[] delta = Vect2d.vectSub(tree, play);
-		float hyp = Vect2d.norm(delta);
+		float[] delta = Vect2dOld1.vectSub(tree, play);
+		float hyp = Vect2dOld1.norm(delta);
 		float opp = pRad + tRad;
 		float adj = (float) Math.sqrt(Math.abs(hyp * hyp - opp * opp));
-		float treeThea = Vect2d.pointToThea(delta);
-		float shapeThea = Vect2d.pointToThea(new float[] { adj, opp });
+		float treeThea = Vect2dOld1.pointToThea(delta);
+		float shapeThea = Vect2dOld1.pointToThea(new float[] { adj, opp });
 		// how to tell is to subtract or add shape thea.
 		// the two possible points are plus shape thea and minus shape thea
 		// scaled to adjacent and added to play.
@@ -543,16 +543,16 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		// [4] is the length from play to each point.
 		// System.out.println("treeThea: " + treeThea);
 		// System.out.println("shapeThea: " + shapeThea);
-		float addThea = Vect2d.theaAdd(treeThea, shapeThea);
+		float addThea = Vect2dOld1.theaAdd(treeThea, shapeThea);
 		// System.out.println("addThea: " + addThea);
-		float subThea = Vect2d.theaSub(treeThea, shapeThea);
-		float[] addPoint = Vect2d.theaToPoint(addThea, adj);
-		float[] subPoint = Vect2d.theaToPoint(subThea, adj);
+		float subThea = Vect2dOld1.theaSub(treeThea, shapeThea);
+		float[] addPoint = Vect2dOld1.theaToPoint(addThea, adj);
+		float[] subPoint = Vect2dOld1.theaToPoint(subThea, adj);
 		// make sub thea and plus thea relative to tree.
 		// plus point minus tree
-		float[] relAddPoint = Vect2d.vectSub(Vect2d.vectAdd(play, addPoint),
+		float[] relAddPoint = Vect2dOld1.vectSub(Vect2dOld1.vectAdd(play, addPoint),
 				tree);
-		float[] relSubPoint = Vect2d.vectSub(Vect2d.vectAdd(play, subPoint),
+		float[] relSubPoint = Vect2dOld1.vectSub(Vect2dOld1.vectAdd(play, subPoint),
 				tree);
 		g.setColor(Color.GREEN);
 		g.drawOval((int) (relAddPoint[0] + tree[0]) - 4,
@@ -560,10 +560,10 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		g.setColor(Color.CYAN);
 		g.drawOval((int) (relSubPoint[0] + tree[0]) - 4,
 				(int) (relSubPoint[1] + tree[1]) - 4, 8, 8);
-		float relAddThea = Vect2d.pointToThea(relAddPoint);
-		float relSubThea = Vect2d.pointToThea(relSubPoint);
-		addPoint = Vect2d.normalize(addPoint);
-		subPoint = Vect2d.normalize(subPoint);
+		float relAddThea = Vect2dOld1.pointToThea(relAddPoint);
+		float relSubThea = Vect2dOld1.pointToThea(relSubPoint);
+		addPoint = Vect2dOld1.normalize(addPoint);
+		subPoint = Vect2dOld1.normalize(subPoint);
 		System.out.println("subPoint[0]: " + subPoint[0]);
 		return new float[] { addPoint[0], addPoint[1], relAddThea, subPoint[0],
 				subPoint[1], relSubThea, adj };

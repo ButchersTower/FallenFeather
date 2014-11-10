@@ -1,6 +1,6 @@
 package FallenFeather.old;
 
-public class Vect2d {
+public class Vect2dOld1 {
 	static float dot(float[] a, float[] b) {
 		float dp = (a[0] * b[0]) + (a[1] * b[1]);
 		return dp;
