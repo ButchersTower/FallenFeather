@@ -175,7 +175,7 @@ public class Unit {
 	int lowest = 0;
 
 	void playMoveWhole(int tarX, int tarY) {
-		System.out.println("move");
+		// Part of setting the units path.
 		// Plus thea from player should get sub thea from tar.
 
 		direction = new float[0][];

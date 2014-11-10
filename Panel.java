@@ -81,7 +81,6 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 
 	/**
 	 * Methods go below here.
-	 * 
 	 */
 
 	public void gStart() {
