@@ -97,11 +97,6 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	public void gLoop() {
 		while (running) {
 
-			for (int c = 0; c < conts.size(); c++) {
-				conts.get(c).tic();
-			}
-			drawScene();
-
 			// Runs once a second and keeps track of ticks;
 			// 1000 ms since last output
 			if (timer() - lastSec > 1000) {
@@ -121,6 +116,11 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 			 */
 
 			// System.out.println("runTime: " + timer());
+
+			for (int c = 0; c < conts.size(); c++) {
+				conts.get(c).tic();
+			}
+			drawScene();
 
 			/**
 			 * And above here.
