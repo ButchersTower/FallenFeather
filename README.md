@@ -19,6 +19,8 @@ One circle path finding.
 Character selection.
 Multiple controller inputs (mouse and keyboard).
 Multiple units for each controller.
+
+Missing:
 Invintory viewing and adding.
 
 ************
