@@ -3,6 +3,8 @@ package FallenFeather.lib;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import FallenFeather.Panel;
+
 public class Indie {
 	public int x, y, width, height, margin, topMargin, exitXundent,
 			exitYindent, exitRadius;
@@ -104,5 +106,33 @@ public class Indie {
 
 	public int getWidth() {
 		return width;
+	}
+
+	int invColumns = 4;
+	int invMargin = 2;
+	int itemWidth = 2;
+
+	void drawInv(Graphics g, int[][] inv, int x, int y) {
+		// I should even out the margins on both sides of the inv slots
+		// draw x and y
+		int column = 0;
+		int row = -1;
+		for (int i = 0; i < inv.length; i++) {
+			if (i % invColumns == 0) {
+				row++;
+				column = 0;
+			}
+			g.setColor(Color.LIGHT_GRAY);
+			int drawX = x + margin + invMargin + column
+					* (invMargin + itemWidth);
+			int drawY = y + margin + topMargin + invMargin + row
+					* (invMargin + itemWidth);
+			g.fillRect(drawX, drawY, itemWidth, itemWidth);
+			if (inv[i][0] == 1) {
+				g.drawImage(Panel.getImageAr()[0], drawX, drawY, null);
+			}
+
+			column++;
+		}
 	}
 }

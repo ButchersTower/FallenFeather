@@ -7,12 +7,6 @@ import FallenFeather.Panel;
 
 public class IndieShell {
 	public int margin, topMargin, exitXundent, exitYindent, exitRadius;
-	// public boolean closed = false;
-	// public boolean clickTop = false;
-
-	int invMargin = 6;
-	int itemWidth = 32;
-	int invColumns;
 
 	public IndieShell(int margin, int topMargin, int exitXundent,
 			int exitYindent, int exitRadius) {
@@ -26,22 +20,6 @@ public class IndieShell {
 		// side.
 		// invColumns = (width - 2 * margin - invMargin) / (invMargin +
 		// itemWidth);
-	}
-
-	public IndieShell(int x, int y, int width, int height, int margin,
-			int topMargin, int exitXundent, int exitYindent, int exitRadius,
-			boolean closed) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-		this.margin = margin;
-		this.topMargin = topMargin;
-		this.exitXundent = exitXundent;
-		this.exitYindent = exitYindent;
-		this.exitRadius = exitRadius;
-		this.closed = closed;
-		invColumns = (width - 2 * margin) / (invMargin + itemWidth);
 	}
 
 	public void draw(Graphics g, int[] invInfo) {
@@ -62,60 +40,40 @@ public class IndieShell {
 				exitRadius * 2);
 	}
 
-	public boolean clickHandle(int mouseX, int mouseY) {
-		// checks area for click, if so carry one and return true, else return
-		// false;
-		if (lapCheck(mouseX, mouseY)) {
-			// first check to see if user has clicked on the exit button.
-			float hype = (float) Math.sqrt(Math.pow(
-					(x + width - exitXundent + exitRadius) - mouseX, 2)
-					+ Math.pow((y + exitYindent + exitRadius) - mouseY, 2));
-			if (hype <= exitRadius) {
-				System.out.println("EXIT");
-				closed = true;
-			}
-
-			// sees if the button press is on the top bar of the Sleak
-			if (mouseY - y >= 0 && mouseY - (y + topMargin) <= 2
-					&& mouseX - x >= 0 && mouseX - (x + width) <= 0) {
-				clickTop = true;
-				System.out.println("CTTTT");
-			} else {
-				clickTop = false;
-			}
+	public boolean lapCheck(int mouseX, int mouseY, int[] panelInfo) {
+		if (mouseX - panelInfo[0] >= 0
+				&& mouseX - panelInfo[0] - panelInfo[2] <= 0
+				&& mouseY - panelInfo[1] >= 0
+				&& mouseY - panelInfo[1] - panelInfo[3] <= 0) {
+			// overlap
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public boolean lapCheck(int mouseX, int mouseY) {
-		if (!closed) {
-			if (mouseX - x >= 0 && mouseX - x - width <= 0 && mouseY - y >= 0
-					&& mouseY - y - height <= 0) {
-				// overlap
-				return true;
-			} else {
-				return false;
+	public int topCheck(int mouseX, int mouseY, int[] panelInfo) {
+		// 0 for nothing
+		// 1 for move
+		// 2 for close
+		if (mouseY > panelInfo[1]) {
+			if (mouseY - 2 < panelInfo[1] + topMargin) {
+				float hype = (float) Math.sqrt(Math.pow((panelInfo[0]
+						+ panelInfo[2] - exitXundent + exitRadius)
+						- (mouseX - 1), 2)
+						+ Math.pow((panelInfo[1] + exitYindent + exitRadius)
+								- (mouseY - 2), 2));
+				if (hype <= exitRadius) {
+					return 2;
+				}
+				return 1;
 			}
-		} else {
-			return false;
 		}
+
+		return 0;
 	}
 
-	public void setX(int x) {
-		this.x = x;
-	}
-
-	public void setY(int y) {
-		this.y = y;
-	}
-
-	public int getWidth() {
-		return width;
-	}
-
-	void drawInv(Graphics g, int[][] inv) {
+	void drawInv(Graphics g, int[][] inv, int x, int y) {
 		// I should even out the margins on both sides of the inv slots
 		// draw x and y
 		int column = 0;
@@ -132,7 +90,7 @@ public class IndieShell {
 					* (invMargin + itemWidth);
 			g.fillRect(drawX, drawY, itemWidth, itemWidth);
 			if (inv[i][0] == 1) {
-				g.drawImage(Panel.imageAr[0], drawX, drawY, null);
+				g.drawImage(Panel.getImageAr()[0], drawX, drawY, null);
 			}
 
 			column++;

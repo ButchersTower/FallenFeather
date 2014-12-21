@@ -19,7 +19,7 @@ import javax.swing.JPanel;
 import FallenFeather.lib.Vect2d;
 import FallenFeather.lib.JaMa;
 
-import FallenFeather.Unit;
+import FallenFeather.UnitOld;
 
 public class PanelOld5 extends JPanel implements Runnable, MouseListener,
 		KeyListener, MouseMotionListener {
@@ -73,7 +73,7 @@ public class PanelOld5 extends JPanel implements Runnable, MouseListener,
 	// player selected.
 	boolean playSel = false;
 
-	Unit play;
+	UnitOld play;
 
 	int[] mouseLast = new int[2];
 
@@ -627,7 +627,7 @@ public class PanelOld5 extends JPanel implements Runnable, MouseListener,
 	 */
 
 	void initPlayer() {
-		play = new Unit(new float[] { 60, 90 }, 20, 12, Color.BLUE);
+		play = new UnitOld(new float[] { 60, 90 }, 20, 12, Color.BLUE);
 		// panels = new IndieInv[1];
 		int invWidth = 240;
 		int invHeight = 300;

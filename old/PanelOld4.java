@@ -71,7 +71,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	boolean playSel = false;
 
 	IndieInv[] panels = new IndieInv[1];
-	Unit play;
+	UnitOld play;
 
 	int[] mouseLast = new int[2];
 
@@ -616,7 +616,7 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	 */
 
 	void initPlayer() {
-		play = new Unit(new float[] { 60, 90 }, 20, 12, Color.BLUE);
+		play = new UnitOld(new float[] { 60, 90 }, 20, 12, Color.BLUE);
 		panels = new IndieInv[1];
 		int invWidth = 240;
 		int invHeight = 300;
