@@ -50,6 +50,13 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	// 0 = computer : 1 = play1 : 2 = play2
 	private List<Controllers> conts;
 
+	// [0] = x
+	// [1] = y
+	// [2] = radius
+	// [3] = height
+	private static float[][] treeInfo = { { 120, 150, 16, 160 },
+			{ 250, 190, 24, 160 }, { 220, 310, 28, 160 } };
+
 	public Panel() {
 		super();
 
@@ -117,9 +124,13 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 
 			// System.out.println("runTime: " + timer());
 
+			// tics every controller.
 			for (int c = 0; c < conts.size(); c++) {
-				conts.get(c).tic();
+				// conts.get(c).tic();
 			}
+			conts.get(1).tic();
+
+			// draws the scene
 			drawScene();
 
 			/**
@@ -157,12 +168,6 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		}
 	}
 
-	// [0] = x
-	// [1] = y
-	// [2] = radius
-	// [3] = height
-	private static float[] treeInfo = { 120, 150, 12, 160 };
-
 	// DRAW EVERYTHING RELATIVE TO CONTROLLER (1)
 	public void drawScene() {
 		// draw background
@@ -176,12 +181,13 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 		// relatively.
 		// plug in: Graphics, Controllers, Trees, This controller number.
 		// Compress the units of every controller and plug it in.
-		float[][][] compressedU = new float[conts.size()][][];
-		for (int c = 0; c < conts.size(); c++) {
-			compressedU[c] = conts.get(c).compressUnits();
-		}
-		conts.get(1).drawAll(g, compressedU, treeInfo, 1);
 
+		conts.get(1).drawAll(g, treeInfo);
+		// float[][][] compressedU = new float[conts.size()][][];
+		// for (int c = 0; c < conts.size(); c++) {
+		// compressedU[c] = conts.get(c).compressUnits();
+		// }
+		// conts.get(1).drawAll(g, compressedU, treeInfo, 1);
 	}
 
 	/**
@@ -218,11 +224,11 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	 * Getters
 	 */
 
-	static float[] getTreeInfo() {
+	static float[][] getTreeInfo() {
 		return treeInfo;
 	}
 
-	static Image[] getImageAr() {
+	public static Image[] getImageAr() {
 		return imageAr;
 	}
 
@@ -233,8 +239,10 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 	@Override
 	public void keyPressed(KeyEvent ke) {
 		if (ke.getKeyCode() == KeyEvent.VK_A) {
-			conts.get(1).addUnit(new float[] { 300, 300 }, 24, 14, Color.BLUE);
+			// conts.get(1).addUnit(new float[] { 300, 300 }, 24, 14,
+			// Color.BLUE);
 		}
+		conts.get(1).keyPressed(ke.getKeyCode());
 	}
 
 	@Override
@@ -251,6 +259,10 @@ public class Panel extends JPanel implements Runnable, MouseListener,
 
 	@Override
 	public void mousePressed(MouseEvent me) {
+		// Check to see if it is on a tree.
+		// Or do i want the cont to do that. I need the cont to do that because
+		// I don't know the conts X and Y.
+
 		// Pass to controller to handle.
 		conts.get(1).mousePress(me.getX(), me.getY(), me.getButton());
 	}

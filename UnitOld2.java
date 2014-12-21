@@ -7,7 +7,7 @@ import FallenFeather.lib.IndieShell;
 import FallenFeather.lib.JaMa;
 import FallenFeather.lib.Vect2d;
 
-public class Unit {
+public class UnitOld2 {
 	private float[] loc;
 	private float radius;
 	private float speed;
@@ -32,7 +32,7 @@ public class Unit {
 	private boolean moving;
 	Pathfind find = new Pathfind(Panel.getTreeInfo());
 
-	public Unit(float[] loc, float radius, float speed, Color color) {
+	public UnitOld2(float[] loc, float radius, float speed, Color color) {
 		this.loc = loc;
 		this.radius = radius;
 		this.speed = speed;
@@ -82,12 +82,70 @@ public class Unit {
 		}
 	}
 
+	public boolean clickHandle(int mouseX, int mouseY) {
+		// Checks for clicking on any panels and handles them appropriately.
+
+		// checks area for click, if so carry one and return true, else return
+		// false;
+		if (lapCheck(mouseX, mouseY)) {
+			// first check to see if user has clicked on the exit button.
+			float hype = (float) Math.sqrt(Math.pow((invInfo[0] + invInfo[2]
+					- shell.exitXundent + shell.exitRadius)
+					- mouseX, 2)
+					+ Math.pow(
+							(invInfo[1] + shell.exitYindent + shell.exitRadius)
+									- mouseY, 2));
+			if (hype <= shell.exitRadius) {
+				System.out.println("EXIT");
+				invInfo[4] = 0;
+			}
+
+			// sees if the button press is on the top bar of the Sleak
+			if (mouseY - invInfo[1] >= 0
+					&& mouseY - (invInfo[1] + topMargin) <= 2
+					&& mouseX - invInfo[0] >= 0
+					&& mouseX - (invInfo[0] + invInfo[2]) <= 0) {
+				// clickTop = true;
+				invInfo[5] = 1;
+			} else {
+				// clickTop = false;
+				invInfo[5] = 0;
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean lapCheck(int mouseX, int mouseY) {
+		// Checks to see if the click is on any panel.
+		// if (!closed) {
+		if (invInfo[4] == 1) {
+			if (mouseX - invInfo[0] >= 0
+					&& mouseX - invInfo[0] - invInfo[2] <= 0
+					&& mouseY - invInfo[1] >= 0
+					&& mouseY - invInfo[1] - invInfo[3] <= 0) {
+				// overlap
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
 	public boolean overlap(float clickx, float clicky) {
 		// Checks overlap on the unit itself.
 		if (Math.hypot(clickx - loc[0], clicky - loc[1]) <= radius) {
 			return true;
 		}
 		return false;
+	}
+
+	public void moveInvLoc(int deltaX, int deltaY) {
+		invInfo[0] += deltaX;
+		invInfo[1] += deltaY;
 	}
 
 	/**
@@ -213,6 +271,32 @@ public class Unit {
 	 * Drawing
 	 */
 
+	public void drawInv(Graphics g) {
+		shell.draw(g, invInfo);
+
+		// I should even out the margins on both sides of the inv slots
+		// draw x and y
+		int column = 0;
+		int row = -1;
+		for (int i = 0; i < inv.length; i++) {
+			if (i % invColumns == 0) {
+				row++;
+				column = 0;
+			}
+			g.setColor(Color.LIGHT_GRAY);
+			int drawX = invInfo[0] + margin + invMargin + column
+					* (invMargin + itemWidth);
+			int drawY = invInfo[1] + margin + topMargin + invMargin + row
+					* (invMargin + itemWidth);
+			g.fillRect(drawX, drawY, itemWidth, itemWidth);
+			if (inv[i][0] == 1) {
+				g.drawImage(Panel.getImageAr()[0], drawX, drawY, null);
+			}
+
+			column++;
+		}
+	}
+
 	/**
 	 * Getters
 	 */
@@ -223,6 +307,10 @@ public class Unit {
 
 	public float getRadius() {
 		return radius;
+	}
+
+	public int[] getInvInfo() {
+		return invInfo;
 	}
 
 	public float getSpeed() {
@@ -248,6 +336,11 @@ public class Unit {
 	/**
 	 * Setters
 	 */
+
+	public void setInvLoc(int x, int y) {
+		invInfo[0] = x;
+		invInfo[1] = y;
+	}
 
 	public void setSelected(boolean b) {
 		selected = b;
